@@ -17,6 +17,5 @@
         "psr-4": {
             "Dkweva01007\\ZeroBundle\\": ""
         }
-    },
-    "target-dir": "Dkweva01007/ZeroBundle/"
+    }
 }
