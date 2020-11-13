@@ -1,7 +1,7 @@
 {
     "name": "dkweva01007/zero-bundle",
     "license": "apache-2.0",
-    "type": "Symfony2.8 Bundle",
+    "type": "project",
     "description": "A PHP's web application for to make a web application with a MVC structure like Symfony but whitout Symfony's Tools. A project make with PHP native from scratch. ",
     "keywords": ["PHP", "7.4", "framework", "MVC"],
     "authors": [{
