@@ -9,6 +9,7 @@ use Exception;
 define('ROUTE_BUNDLE', 'route_bundle.json');
 define('FILE_BUNDLES_CONFIG', realpath($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . ROUTE_BUNDLE);
 define('FOLDER_BUNDLES_LOCALISATION', realpath($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'src');
+define('VENDOR_LOCALISATION', realpath($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR);
 
 /**
  * a class who role to found all Function Actions, save hers route by Controller and Bundle
@@ -30,11 +31,17 @@ class BundleRoute {
      */
     private array $routing;
 
+    /**
+     * @var mixed vendor's autoload location
+     */
+    private $classLoader;
+
     private function __construct() {
 
         if (!file_exists(FILE_BUNDLES_CONFIG)) {
             throw new Exception('config' . DIRECTORY_SEPARATOR . ROUTE_BUNDLE . ' was not found');
         }
+        $this->classLoader = require VENDOR_LOCALISATION . 'autoload.php';
         $this->routingSchema = json_decode(file_get_contents(FILE_BUNDLES_CONFIG), true);
         self::checkJson();
         self::checkDuplicatePathBundle();
@@ -104,7 +111,7 @@ class BundleRoute {
             if ($bundle_name) {
                 if (
                         $bundle_name !== $bundle_config &&
-                        $bundle_config_elements['path'] === $this->_routingSchema[$bundle_name]['path']
+                        $bundle_config_elements['path'] === $this->routingSchema[$bundle_name]['path']
                 ) {
                     throw new Exception('path "' . $bundle_config_elements['path'] . '" already used in ' . ROUTE_BUNDLE);
                 }
@@ -127,10 +134,11 @@ class BundleRoute {
             $pathControllersInBundle = FOLDER_BUNDLES_LOCALISATION . DIRECTORY_SEPARATOR . $bundle_config_elements['bundle'] .
                     DIRECTORY_SEPARATOR . 'Controller';
             $bundle_config_elements['controllers'] = [];
+            $this->classLoader->addPsr4($bundle_config_elements['bundle'] . "\\", FOLDER_BUNDLES_LOCALISATION . DIRECTORY_SEPARATOR . $bundle_config_elements['bundle']);
             foreach (glob($pathControllersInBundle . DIRECTORY_SEPARATOR . '*Controller.php') as $file) {
                 $class = $bundle_config_elements['bundle'] . "\\Controller\\" . basename($file, '.php');
-                $bundle_config_elements['controllers'] = $class::getActionRoutes();
-                foreach ($class::getActionRoutes() as $controllerAction => &$route) {
+                $bundle_config_elements['controllers'] = $class::getActionRoutes($bundle_config_elements['path']);
+                foreach ($bundle_config_elements['controllers'] as $controllerAction => &$route) {
                     $actions[] = new Action([
                         'route' => function(Request $p) use ($route) {
                             return $p->getPath() === $route['route'];

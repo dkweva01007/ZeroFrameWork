@@ -39,9 +39,12 @@ abstract class Controller {
      * 
      * @return array
      */
-    public static function getActionRoutes(): array {
+    public static function getActionRoutes(string $bundle_path): array {
         //get path of childreen class
         $prefix_path = static::getPath((new \ReflectionClass(get_called_class()))->getdoccomment());
+        if ($bundle_path !== '/') {
+            $prefix_path['route'] .= $bundle_path;
+        }
         //get the all Method of children class name
         $class_all_methods = get_class_methods(get_called_class());
         //var_dump($class_all_methods);
@@ -68,7 +71,7 @@ abstract class Controller {
      * @return array
      */
     private static function getPath(string $comment_path_string, string $class_route_method = null, string $prefix_path = "") {
-        $pattern = "#(@Route)\((\"\/\w+\"),\s+(name)=(\"\w+\")\)#";
+        $pattern = "#(@Route)\((\"\/\w*\"),\s+(name)=(\"\w+(\s+\w+)*\")\)#";
         preg_match_all($pattern, $comment_path_string, $matches, PREG_PATTERN_ORDER);
         $route['route'] = trim($matches[2][sizeof($matches[2]) - 1], '"') === "/" ?
                 $prefix_path . "" : $prefix_path . trim($matches[2][sizeof($matches[2]) - 1], '"');
