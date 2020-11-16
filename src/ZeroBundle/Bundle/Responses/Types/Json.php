@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Dkweva01007\ZeroBundle\Responses\Types;
+namespace ZeroBundle\Bundle\Responses\Types;
 
-use MVC\Responses\Response;
+use ZeroBundle\Bundle\Responses\Response;
 
 /**
- * Subclass Response for redirection
+ * Subclass Response for send JSON
  */
-class Redirection extends Response {
+class Json extends Response {
 
     /**
      * @param mixed $data 

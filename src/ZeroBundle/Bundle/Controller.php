@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Dkweva01007\ZeroBundle;
+namespace ZeroBundle\Bundle;
 
-use Dkweva01007\ZeroBundle\Responses\Response;
+use ZeroBundle\Bundle\Responses\Response;
 
 /**
  * Astract class for make controllers in Bundle 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dkweva01007\ZeroBundle\Responses;
+namespace ZeroBundle\Bundle\Responses;
 
 /**
  * Class who manage the response send to the client

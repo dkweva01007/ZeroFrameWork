@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dkweva01007\ZeroBundle;
+namespace ZeroBundle\Bundle;
 
 class Request {
     // composants d'une URL 
