@@ -14,7 +14,7 @@
     },
     "autoload": {
         "psr-4": {
-            "ZeroBundle\\Bundle": "src/ZeroBundle/Bundle/"
+            "ZeroBundle\\Bundle\\": "src/ZeroBundle/Bundle/"
         }
     }
 }
