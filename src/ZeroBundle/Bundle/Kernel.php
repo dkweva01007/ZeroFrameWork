@@ -99,7 +99,11 @@ class Kernel {
      */
     public function start(): void {
         $controller = false;
-        $scheme = 'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' : '');
+        $scheme = 'http' .
+                (
+                isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
+                's' : ''
+                );
         $uri = $scheme . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
         $this->request = new Request($uri);
@@ -113,7 +117,10 @@ class Kernel {
         $controller = $this->SearchActionsController();
 
         if ($controller == null) {
-            $this->response = new Response('Unable to manage the request', ['HTTP/1.0 404']);
+            $this->response = new Response(
+                    'Unable to manage the request',
+                    ['HTTP/1.0 404']
+            );
             $this->response->send();
             return;
         }
@@ -126,7 +133,10 @@ class Kernel {
         $this->setResponse($BundleControllerObjet->getResponse());
 
         if (!($this->response instanceof Response)) {
-            $this->response = new Response('Invalid response format', ['HTTP/1.0 500']);
+            $this->response = new Response(
+                    'Invalid response format',
+                    ['HTTP/1.0 500']
+            );
         }
 
         $this->response->send();

@@ -38,6 +38,11 @@ class Request {
     private array $path = [];
 
     /**
+     * @var string 
+     */
+    private string $request_method = '';
+
+    /**
      * @var array 
      */
     private array $query = [];
@@ -100,6 +105,13 @@ class Request {
     }
 
     /**
+     * @return string 
+     */
+    public function getRequestMethod(): string {
+        return $this->request_method;
+    }
+
+    /**
      * @return array 
      */
     public function getQuery(): array {
@@ -143,8 +155,12 @@ class Request {
         $this->linkParts($parts);
 
         $this->is_valid = true;
+        
+        $this->request_method = $_SERVER["REQUEST_METHOD"];
 
-        $this->is_ajax = strtoupper($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHTTPREQUEST';
+        $this->is_ajax = strtoupper(
+                        $_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''
+                ) === 'XMLHTTPREQUEST';
     }
 
     /**

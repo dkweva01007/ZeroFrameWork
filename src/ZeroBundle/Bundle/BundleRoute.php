@@ -7,9 +7,18 @@ namespace ZeroBundle\Bundle;
 use Exception;
 
 define('ROUTE_BUNDLE', 'route_bundle.json');
-define('FILE_BUNDLES_CONFIG', realpath($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . ROUTE_BUNDLE);
-define('FOLDER_BUNDLES_LOCALISATION', realpath($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'src');
-define('VENDOR_LOCALISATION', realpath($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR);
+define('FILE_BUNDLES_CONFIG',
+        realpath($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR . 'config' .
+        DIRECTORY_SEPARATOR . ROUTE_BUNDLE
+);
+define('FOLDER_BUNDLES_LOCALISATION',
+        realpath($_SERVER['DOCUMENT_ROOT']) .
+        DIRECTORY_SEPARATOR . 'src'
+);
+define('VENDOR_LOCALISATION',
+        realpath($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR .
+        'vendor' . DIRECTORY_SEPARATOR
+);
 
 /**
  * a class who role to found all Function Actions, save hers route by Controller and Bundle
@@ -39,10 +48,16 @@ class BundleRoute {
     private function __construct() {
 
         if (!file_exists(FILE_BUNDLES_CONFIG)) {
-            throw new Exception('config' . DIRECTORY_SEPARATOR . ROUTE_BUNDLE . ' was not found');
+            throw new Exception(
+                    'config' . DIRECTORY_SEPARATOR . ROUTE_BUNDLE .
+                    ' was not found'
+            );
         }
         $this->classLoader = require VENDOR_LOCALISATION . 'autoload.php';
-        $this->routingSchema = json_decode(file_get_contents(FILE_BUNDLES_CONFIG), true);
+        $this->routingSchema = json_decode(
+                file_get_contents(FILE_BUNDLES_CONFIG),
+                true
+        );
         self::checkJson();
         self::checkDuplicatePathBundle();
         $this->routing = self::initControllerByBundle();
@@ -79,18 +94,25 @@ class BundleRoute {
      * @return void
      */
     private function checkJson(): void {
-        foreach ($this->routingSchema as $bundle_config => $bundle_config_elements) {
+        foreach (
+        $this->routingSchema as $bundle_config => $bundle_config_elements
+        ) {
             $str_error = "";
             if (sizeof($bundle_config_elements) != 2) {
-                $str_error .= 'only 2 parameters expected by Bundle, actually ' . sizeof($bundle_config_elements)
-                        . ' parameter(s) found for "' . $bundle_config . '", ';
+                $str_error .= 'only 2 parameters expected by Bundle, actually ' .
+                        sizeof($bundle_config_elements) .
+                        ' parameter(s) found for "' . $bundle_config . '", ';
             }
             if (!array_key_exists("path", $bundle_config_elements)) {
-                $str_error .= '\'path\' paramater not found for "' . $bundle_config . '" (exemple format: \'/toto\')\n';
+                $str_error .= '\'path\' paramater not found for "' .
+                        $bundle_config . '" (exemple format: \'/toto\')\n';
             }
 
             if (!array_key_exists("bundle", $bundle_config_elements)) {
-                $str_error .= '\'bundle\' paramater not found for "' . $bundle_config . '" (exemple format: \'TestBundle\' or \'app' . DIRECTORY_SEPARATOR . 'TestBundle\'),';
+                $str_error .= '\'bundle\' paramater not found for "' .
+                        $bundle_config .
+                        '" (exemple format: \'TestBundle\' or \'app' .
+                        DIRECTORY_SEPARATOR . 'TestBundle\'),';
             }
 
             if ($str_error !== "") {
@@ -107,13 +129,16 @@ class BundleRoute {
      * @return void
      */
     private function checkDuplicatePathBundle(string $bundle_name = null) {
-        foreach ($this->routingSchema as $bundle_config => &$bundle_config_elements) {
+        foreach (
+        $this->routingSchema as $bundle_config => &$bundle_config_elements
+        ) {
             if ($bundle_name) {
                 if (
                         $bundle_name !== $bundle_config &&
                         $bundle_config_elements['path'] === $this->routingSchema[$bundle_name]['path']
                 ) {
-                    throw new Exception('path "' . $bundle_config_elements['path'] . '" already used in ' . ROUTE_BUNDLE);
+                    throw new Exception('path "' . $bundle_config_elements['path'] .
+                            '" already used in ' . ROUTE_BUNDLE);
                 }
             } else {
                 self::checkDuplicatePathBundle($bundle_config);
@@ -131,17 +156,37 @@ class BundleRoute {
         $actions = [];
         //foreach by bundle
         foreach ($this->routingSchema as &$bundle_config_elements) {
-            $pathControllersInBundle = FOLDER_BUNDLES_LOCALISATION . DIRECTORY_SEPARATOR . $bundle_config_elements['bundle'] .
-                    DIRECTORY_SEPARATOR . 'Controller';
+
             $bundle_config_elements['controllers'] = [];
-            $this->classLoader->addPsr4($bundle_config_elements['bundle'] . "\\", FOLDER_BUNDLES_LOCALISATION . DIRECTORY_SEPARATOR . $bundle_config_elements['bundle']);
-            foreach (glob($pathControllersInBundle . DIRECTORY_SEPARATOR . '*Controller.php') as $file) {
-                $class = $bundle_config_elements['bundle'] . "\\Controller\\" . basename($file, '.php');
+            $pathControllersInBundle = FOLDER_BUNDLES_LOCALISATION .
+                    DIRECTORY_SEPARATOR . $bundle_config_elements['bundle'] .
+                    DIRECTORY_SEPARATOR . 'Controller';
+
+
+            $this->classLoader->addPsr4($bundle_config_elements['bundle'] .
+                    "\\", FOLDER_BUNDLES_LOCALISATION . DIRECTORY_SEPARATOR .
+                    $bundle_config_elements['bundle']);
+
+            foreach (
+            glob(
+                    $pathControllersInBundle . DIRECTORY_SEPARATOR .
+                    '*Controller.php'
+            ) as $file
+            ) {
+                $class = $bundle_config_elements['bundle'] .
+                        "\\Controller\\" . basename($file, '.php');
                 $bundle_config_elements['controllers'] = $class::getActionRoutes($bundle_config_elements['path']);
-                foreach ($bundle_config_elements['controllers'] as $controllerAction => &$route) {
+
+                foreach (
+                $bundle_config_elements['controllers'] as $controllerAction => &$route
+                ) {
                     $actions[] = new Action([
                         'route' => function(Request $p) use ($route) {
-                            return $p->getPath() === $route['route'];
+                            $is_correct_path = $p->getPath() === $route['route'] &&
+                                    in_array($p->getRequestMethod(), $route['methods'])
+                            ;
+                            var_dump($is_correct_path);
+                            return $is_correct_path;
                         },
                         'controller' => $class,
                         'controllerAction' => $controllerAction,
