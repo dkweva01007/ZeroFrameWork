@@ -34,7 +34,6 @@ Todo List
 --------
 
   - [ ] advanced route check between Bundles, controllers, function action
-  - [ ] Add and Manange HTTP Request Method (POST, UPDATE, PATCH, DELETED, etc ...)
   - [ ] Advanced Error gestion
   - [ ] Default template with PHP
   - [ ] Command Line Bundle
